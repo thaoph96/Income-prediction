@@ -1,0 +1,92 @@
+---
+title: "modeling"
+date: "5/27/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r message = FALSE}
+library(tidyverse)
+library(broom)
+library(magrittr)
+```
+
+```{r}
+adults <- read.csv(here::here("data/adult.csv"), header = FALSE)
+
+colnames(adults) <- c("age", "workclass", "fnlwgt", "education", "education_num", "marital_status",
+                      "occupation", "relationship", "race", "sex", "capital_gain", "capital_loss",
+                      "hoursper_week", "native_country", "income")
+adults <- adults %>% 
+  mutate(income = as.factor(income),
+         workclass = as.factor(workclass),
+         education = as.factor(education),
+         marital_status = as.factor(marital_status),
+         occupation = as.factor(occupation),
+         relationship = as.factor(relationship),
+         race = factor(race,
+                       levels = c(" White", " Amer-Indian-Eskimo", " Asian-Pac-Islander",
+                                  " Black", " Other")),
+         sex = as.factor(sex),
+         native_country = as.factor(native_country),
+         us_native = ifelse(native_country == " United-States", TRUE, FALSE),
+         over_50k = ifelse(income == " >50k", TRUE, FALSE))
+
+glimpse(adults)
+```
+
+Primary interest, the things people are born with: sex, race, us_native
+```{r}
+model_sex <- glm(income ~ sex,
+                 data = adults,
+                 family = binomial)
+
+tidy(model_sex)
+confint(model_sex)
+```
+
+```{r}
+model_race <- glm(income ~ race,
+                  data = adults,
+                  family = binomial)
+
+tidy(model_race)
+confint(model_race)
+```
+
+
+```{r}
+model_us_native <- glm(income ~ us_native,
+                       data = adults,
+                       family = binomial)
+
+tidy(model_us_native)
+confint(model_us_native)
+```
+
+Income based on age and education: 
+```{r}
+model_age <- glm(income ~ age,
+                     data = adults,
+                     family = binomial)
+
+tidy(model_age)
+summary(model_age)
+confint(model_age)
+```
+
+```{r}
+model_ed <- glm(income ~ education_num, 
+                data = adults,
+                family = binomial)
+
+tidy(model_ed)
+summary(model_ed)
+confint(model_ed)
+```
+
+
+
